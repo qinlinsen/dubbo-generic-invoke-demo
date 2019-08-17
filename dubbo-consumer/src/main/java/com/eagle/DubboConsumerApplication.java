@@ -32,17 +32,21 @@ public class DubboConsumerApplication {
         String methodName="cloth";
         ArrayList<Map<String, Object>> parameters = new ArrayList<>();
         HashMap<String, Object> map = new HashMap<>();
+        //指定暴露服务接口中的方法入参的类型
         map.put("ParamType","com.eagle.entity.Color");
         HashMap<String, Object> map1 = new HashMap<>();
         map1.put("red", "square");
         HashMap<String, String> worldMap = new HashMap<>();
         worldMap.put("world", "wolrd");
         map1.put("world", worldMap);
+        //给指定暴露服务接口中的方法入参传递值
+
         map.put("Object",map1);
+
         parameters.add(map);
-        Object result = DubboGenericInvokeHelper.getInstance().genericInvoke(interfaceClass, methodName, parameters);
+        Object result = DubboGenericInvokeHelper.dubboGenericInvoke(interfaceClass, methodName, parameters);
         System.out.println(JSON.toJSONString(result));
-        return "docker image hello world";
+        return JSON.toJSONString(result);
     }
 
     @RequestMapping("/dubbo")

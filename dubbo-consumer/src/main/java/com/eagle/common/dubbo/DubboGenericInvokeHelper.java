@@ -15,6 +15,37 @@ import java.util.Properties;
  * @author qinlinsen
  */
 public class DubboGenericInvokeHelper {
+    /**
+     * 这里着重解释一下parameters暴露服务中的入参
+     * 这是一个List<Map<String,Object>形式的。
+     * 以dubbo-provider工程中的ClothService中的暴露服务的方法Shape cloth(Color color)为例;
+     * 这个服务提供中如何传递color这个入参呢。
+     * 操作步骤如下：
+     * ====================================================
+     * 首先指定这个color的类型是com.eagle.entity.Color
+     * 即： HashMap<String, Object> map = new HashMap<>();
+     *         map.put("ParamType","com.eagle.entity.Color");
+     * 其次 给这个color赋值
+     *                map.put("Object",map1);
+     *     这个map1就是color这个变量的值,dubbo内部会自动的把一个map1对象转成对应的实体类
+     *     其中map1中的key就是相应实体类中的属性,value就是给属性赋的值。
+     *     对一个实体类中的引用类型,也可以看成一个map,所以对于传递参数而言只要是引用类型都可以传递map。
+     *     具体的map转成实体类由dubbo框架帮我们做。
+     *
+     * ====================================================
+     *
+     *
+     * @param interfaceClass  暴露服务的接口的全限名
+     * @param methodName      暴露服务中的方法名
+     * @param parameters      暴露服务中的入参
+     * @return
+     */
+    public static Object dubboGenericInvoke(String interfaceClass, String methodName, List<Map<String, Object>> parameters){
+        Object result = DubboGenericInvokeHelper.getInstance().genericInvoke(interfaceClass, methodName, parameters);
+        return result;
+    }
+
+
     private ApplicationConfig application;
     private RegistryConfig registry;
 
@@ -47,11 +78,11 @@ public class DubboGenericInvokeHelper {
 
     }
 
-    public static DubboGenericInvokeHelper getInstance() {
+    private static DubboGenericInvokeHelper getInstance() {
         return SingletonHolder.INSTANCE;
     }
 
-    public Object genericInvoke(String interfaceClass, String methodName, List<Map<String, Object>> parameters){
+    private Object genericInvoke(String interfaceClass, String methodName, List<Map<String, Object>> parameters){
 
         ReferenceConfig<GenericService> reference = new ReferenceConfig<GenericService>();
         reference.setApplication(application);
@@ -77,6 +108,4 @@ public class DubboGenericInvokeHelper {
         }
         return genericService.$invoke(methodName, invokeParamTyeps, invokeParams);
     }
-
-
 }
